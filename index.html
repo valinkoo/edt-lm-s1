@@ -35,7 +35,7 @@
   }
   .grid{
     display:grid;
-    grid-template-columns:52px repeat(5,1fr);
+    grid-template-columns:50px repeat(5,1fr);
     border-top:1px solid var(--line);
     border-left:1px solid var(--line);
     background:var(--card);
@@ -52,14 +52,24 @@
   }
   .head.corner{background:var(--paper);}
   .hourlabel{
-    font-size:10.5px;
+    font-size:10px;
     color:var(--slate);
     text-align:right;
-    padding:2px 6px 0 0;
+    padding:3px 8px 0 0;
     border-right:1px solid var(--line);
     border-bottom:1px solid var(--line);
     position:relative;
-    top:-6px;
+    top:-7px;
+    font-variant-numeric:tabular-nums;
+  }
+  .hourlabel.full{
+    font-weight:700;
+    font-size:11px;
+    color:var(--navy);
+  }
+  .hourlabel.half{
+    font-weight:400;
+    color:#A9A390;
   }
   .col{
     position:relative;
@@ -67,8 +77,11 @@
     border-bottom:1px solid var(--line);
   }
   .slot{
-    height:32px;
+    height:34px;
     border-bottom:1px solid var(--line);
+  }
+  .slot.full-hour{
+    border-bottom:1px solid #C7C1B2;
   }
   .slot:last-child{border-bottom:none;}
   .course{
@@ -263,10 +276,12 @@
   }
 
   @media (max-width:640px){
-    .grid{grid-template-columns:36px repeat(5,1fr);}
+    .grid{grid-template-columns:38px repeat(5,1fr);}
     .head{font-size:11.5px;padding:8px 2px;}
     .course .title{font-size:10.5px;}
     .course .time,.course .room{font-size:8.5px;}
+    .hourlabel{font-size:8.5px;padding-right:4px;}
+    .hourlabel.full{font-size:9px;}
   }
 </style>
 </head>
@@ -288,13 +303,11 @@
     <span><i class="dot" style="background:#6B6EA8"></i>Méthodologie</span>
     <span><i class="dot" style="background:#8C5A3C"></i>Découverte — Grec</span>
     <span><i class="dot" style="background:#4A7A6E"></i>Anglais</span>
-    <span style="margin-left:6px;">· liseré blanc = TD, sans liseré = CM · bloc hachuré = session de révision (clic = détail par matière)</span>
   </div>
 
   <div class="foot">
     <div><b>16h</b><br>de cours / semaine</div>
     <div><b>7h</b><br>de révision en BU / semaine</div>
-    <div><b>Ven.</b><br>révision la + dense (4 matières)</div>
   </div>
 </div>
 
@@ -302,19 +315,19 @@
 const DAYS = ["Lundi","Mardi","Mercredi","Jeudi","Vendredi"];
 const START_HOUR = 9;   // grille de 9h à 19h
 const END_HOUR = 19;
-const SLOT_H = 32; // px per 30 min
+const SLOT_H = 34; // px per 30 min
 
 const courses = [
-  {day:0, start:"12:00", end:"14:00", title:"Approches des genres littéraires", room:"Grand Amphi", cls:"c-lit", type:"CM"},
-  {day:0, start:"15:00", end:"16:30", title:"Anglais LM/LEMA (B2+)", room:"Salle 34", cls:"c-eng", type:"TD"},
-  {day:1, start:"10:00", end:"11:30", title:"Histoire littéraire 1", room:"Salle 213 bis", cls:"c-hist", type:"TD"},
-  {day:1, start:"13:00", end:"14:00", title:"Introduction à la linguistique française", room:"Grand Amphi", cls:"c-lang", type:"CM"},
-  {day:2, start:"13:00", end:"14:00", title:"Histoire littéraire 1", room:"Grand Amphi", cls:"c-hist", type:"CM"},
-  {day:2, start:"17:00", end:"19:00", title:"Découverte Grec — Litt. et archéologie", room:"Amphi 120", cls:"c-grec", type:"CM"},
-  {day:3, start:"11:00", end:"14:00", title:"Approches des genres littéraires", room:"Salle 218", cls:"c-lit", type:"TD"},
-  {day:3, start:"15:00", end:"16:30", title:"Introduction à la linguistique française", room:"Salle 345", cls:"c-lang", type:"TD"},
-  {day:4, start:"09:00", end:"10:30", title:"Écrire et penser la fiction", room:"Salle 348", cls:"c-fiction", type:"TD"},
-  {day:4, start:"12:00", end:"13:00", title:"Écrire et penser la fiction", room:"Amphi 128", cls:"c-fiction", type:"CM"},
+  {day:0, start:"12:00", end:"14:00", title:"Approches des genres littéraires", room:"Grand Amphi", cls:"c-lit", type:"CM", teacher:"M. Jean-Marc Hovasse"},
+  {day:0, start:"15:00", end:"16:30", title:"Anglais LM/LEMA (B2+)", room:"Salle 34", cls:"c-eng", type:"TD", teacher:"Mme Manon Boukhroufa-Trijaud"},
+  {day:1, start:"10:00", end:"11:30", title:"Histoire littéraire 1", room:"Salle 213 bis", cls:"c-hist", type:"TD", teacher:"Mme Clothilde Dauphant"},
+  {day:1, start:"13:00", end:"14:00", title:"Introduction à la linguistique française", room:"Grand Amphi", cls:"c-lang", type:"CM", teacher:"M. Gilles Siouffi"},
+  {day:2, start:"13:00", end:"14:00", title:"Histoire littéraire 1", room:"Grand Amphi", cls:"c-hist", type:"CM", teacher:"Mme Isabelle Fabre / M. Julien Goeury (sous réserve)"},
+  {day:2, start:"17:00", end:"19:00", title:"Découverte Grec — Litt. et archéologie", room:"Salle 117", cls:"c-grec", type:"CM", teacher:"M. Patrice Hamon"},
+  {day:3, start:"11:00", end:"14:00", title:"Approches des genres littéraires", room:"Salle 218", cls:"c-lit", type:"TD", teacher:"M. Jacques Guilhembet"},
+  {day:3, start:"15:00", end:"16:30", title:"Introduction à la linguistique française", room:"Salle 345", cls:"c-lang", type:"TD", teacher:"Mme Jeanne François"},
+  {day:4, start:"09:00", end:"10:30", title:"Écrire et penser la fiction", room:"Salle 348", cls:"c-fiction", type:"TD", teacher:"M. Thomas Augais"},
+  {day:4, start:"12:00", end:"13:00", title:"Écrire et penser la fiction", room:"Amphi 128", cls:"c-fiction", type:"CM", teacher:"M. Thomas Augais"},
   {day:0, start:"10:00", end:"11:00", title:"Révision — Approches des genres littéraires", room:"BU Malesherbes", cls:"c-lit rev", type:"RÉV", subject:"Approches des genres littéraires"},
   {day:1, start:"15:00", end:"16:00", title:"Révision — Histoire littéraire 1", room:"BU Michelet", cls:"c-hist rev", type:"RÉV", subject:"Histoire littéraire 1"},
   {day:1, start:"16:00", end:"17:00", title:"Révision — Approches des genres littéraires", room:"BU Michelet", cls:"c-lit rev", type:"RÉV", subject:"Approches des genres littéraires"},
@@ -340,8 +353,9 @@ DAYS.forEach(d=>grid.appendChild(el("div","head",d)));
 const hourCol = el("div","");
 for(let i=0;i<totalSlots;i++){
   const isHour = i%2===0;
-  const label = isHour ? (START_HOUR + i/2)+"h" : "";
-  const cell = el("div","hourlabel", label);
+  const hh = START_HOUR + Math.floor(i/2);
+  const label = isHour ? hh+"h" : hh+"h30";
+  const cell = el("div","hourlabel "+(isHour?"full":"half"), label);
   cell.style.height = SLOT_H+"px";
   hourCol.appendChild(cell);
 }
@@ -353,7 +367,8 @@ DAYS.forEach((d,dayIdx)=>{
   const col = el("div","col");
   col.style.height = (totalSlots*SLOT_H)+"px";
   for(let i=0;i<totalSlots;i++){
-    col.appendChild(el("div","slot",""));
+    const isFullHour = i%2===1; // fin de l'heure pleine = trait plus marqué
+    col.appendChild(el("div","slot"+(isFullHour?" full-hour":""),""));
   }
 
   const dayCourses = courses.filter(c=>c.day===dayIdx && c.type!=="RÉV");
@@ -417,6 +432,9 @@ function selectSingle(c, box){
   html += `<dt>Lieu</dt><dd>${c.room}</dd>`;
   html += `<dt>Horaire</dt><dd>${DAYS[c.day]}, ${c.start}–${c.end}</dd>`;
   html += `<dt>Durée</dt><dd>${durLabel(durMin)}</dd>`;
+  if(c.teacher){
+    html += `<dt>Enseignant</dt><dd>${c.teacher}</dd>`;
+  }
   html += `</dl>`;
   detailPanel.innerHTML = html;
 }
